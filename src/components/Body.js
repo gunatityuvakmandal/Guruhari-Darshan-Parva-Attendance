@@ -22,7 +22,7 @@ function Body() {
         // Truecaller is not installed or is ios
         setTrueCallerNotFound(true);
       } else {
-        while (!isLoggedIn) {
+        for (let i = 0; i < 3 && !isLoggedIn; i++) {
           let response = await fetch(BACKEND_ENDPOINT + "/" + uniqueRequestId);
           if (response.ok) {
             const resp = await response.json();
@@ -34,6 +34,9 @@ function Body() {
             setIsLoggedIn(true);
             break;
           } else {
+            if (i == 2) {
+              setTrueCallerNotFound(true);
+            }
             window.alert("Please wait for few seconds...");
           }
         }
@@ -42,6 +45,9 @@ function Body() {
   }
 
   const alreadyLoggedIn = localStorage.getItem(USER_DETAILS_LOCAL_STORAGE_KEY);
+  let safariAgent = window.navigator.userAgent.indexOf("Safari") > -1;
+  const chromeAgent = window.navigator.userAgent.indexOf("Chrome") > -1;
+  if (chromeAgent && safariAgent) safariAgent = false;
 
   if (alreadyLoggedIn != null) {
     let user = JSON.parse(alreadyLoggedIn);
@@ -52,7 +58,7 @@ function Body() {
         phoneNumber={user?.phoneNumber}
       />
     );
-  } else if (trueCallerNotFound) {
+  } else if (safariAgent || trueCallerNotFound) {
     return (
       <Form
         trueCallerNotFound={true}
